@@ -85,12 +85,17 @@ def win():
 
 @app.route('/reveal', methods=['post'])
 def reveal():
+	"""
+	# it will throw an error even without checking this, 
+	# because if you navigate directly to this page,
+	# there will be no post request, and that will upset it.
 	try:
 		request.form['giveup']
 		n = session['number']
 	except:
-		n = 'Keep guessing!'
+		n = 'Keep guessing!'"""
 
+	n = session['number']
 	return render_template('answer.html', n=n)
 
 @app.route('/restart')
