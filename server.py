@@ -1,9 +1,10 @@
 from flask import Flask, render_template, redirect, request, session
 import random
 from math import ceil, floor
-from palettable.colorbrewer.sequential import PuRd_9
+from palettable.cmocean.sequential import Amp_10, Dense_10
+# from palettable.cmocean.sequential import Thermal_20 
 # https://jiffyclub.github.io/palettable/#documentation
-# https://jiffyclub.github.io/palettable/colorbrewer/sequential/
+# http://jiffyclub.github.io/palettable/cmocean/sequential/#thermal_7
 
 
 app = Flask(__name__)
@@ -12,30 +13,68 @@ secretKey = open('secret-key.txt', 'r').read().strip()
 app.secret_key = secretKey
 
 N = 100
-colors = PuRd_9.hex_colors
-colors.reverse()
-ncol = len(colors)
 
+# therm = Thermal_20.hex_colors
+# therm_rev = list(reversed(therm))
+reds = Amp_10.hex_colors
+blues = list(reversed(Dense_10.hex_colors))
+therm = blues + reds
+therm_rev = list(reversed(therm))
+ncol = len(therm)
 
 def initialize():
-	session['number'] = 17# random.randrange(0, N) # random number between 0-100
-	n = session['number']
-	session['binSize'] = ceil( max(n, N-n)/ncol )
-	session['nbins'] = ceil(float(N)/session['binSize'])
+	
+	n = 17 # random.randrange(0, N+1) # random number between 0-N
+	binsize = float(max(N, N-n)) / ncol
+
+	bins = {}
+
+	## add the left side bins
+	x = n - binsize/2 # start at the LHS of the bin that contains n
+	# cols = reds_rev + blues
+	cols = therm_rev
+	j = 0
+	while x > -binsize and j < len(cols):
+		newbin = {str(-j): {'range': (x, x+binsize), 'color': cols[j], 'num': -j}}
+		bins.update(newbin)
+		
+		j += 1
+		x -= binsize
+
+	## add the right side bins
+	x = n + binsize/2
+	# list(bins.keys())[0][1] # start at the LHS of the bin AFTER the bin that contains n
+	# cols = reds_rev + blues
+	j = 1 # start with the second darkest red
+	while x < N+binsize and j < len(cols):
+		newbin = {str(j): {'range': (x, x+binsize), 'color': cols[j], 'num': j}}
+		
+		bins.update(newbin)
+		
+		j += 1
+		x += binsize
+
+	# renumber the bins starting from 0 so that
+	# you cant tell where the answer is
+	m = -1*min([v['num'] for v in bins.values()])
+	
+	for k, v in bins.items():
+		v['num'] += m
+		bins.update({k: v})
+
+	session['number'] = n
+	session['bins'] = bins
+	session['binnums'] = sorted([v['num'] for v in bins.values()])
 	session['guesses'] = []
 	session['guessbar'] = dict()
 	session['win'] = False
 	session['msg'] = ''
-	print (session['number'])
+	
+	
 
-def get_color(guess):
-	number = session['number']
-	binSize = session['binSize']
-
-	diff = float(abs(number - guess))
-	binId = min(floor(diff/binSize), ncol - 1)
-
-	return {str(binId): colors[binId]}
+def get_bin(guess):	
+	return [{str(v['num']): v['color']} for v in session['bins'].values()\
+			if guess >= v['range'][0] and guess < v['range'][1]][0]
 
 
 
@@ -50,7 +89,7 @@ def index():
 
 	params = {'guesses': str(session['guesses']),
 			  'guessbar': str(session['guessbar']),
-			   'nbins': session['nbins'],
+			   'binnums': session['binnums'],
 			   'msg': session['msg']}
 	return render_template('index.html', **params)
 
@@ -62,7 +101,7 @@ def check():
 	session['guesses'].append(guess)
 
 	guessbar = session['guessbar']
-	guessbar.update(get_color(int(guess)))
+	guessbar.update(get_bin(int(guess)))
 	session['guessbar'] = guessbar
 	
 	if int(guess) == int(session['number']):
