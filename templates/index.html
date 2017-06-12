@@ -8,17 +8,27 @@
 	<script type="text/javascript">
 		
 		$(document).ready(function(){
-			//console.log('nbins', {{nbins}});
-			//console.log('guesses', {{guesses | safe}});
 			
-			var nums = {{binnums | safe}};
-			for(var j=0; j<nums.length; j++){
-				$('#colorbar').append('<div num='+nums[j]+'></div>');
-			}
-			var guessbar = {{guessbar | safe}}
-			for(var j in guessbar){
-				$('#colorbar div[num='+j+']').css('background-color', guessbar[j]);
-			}
+			$.getJSON('/get_guesses', {}, function(guesses){
+				console.log('guesses',guesses);
+			})
+			// var nums = {{binnums | safe}};
+			$.getJSON('/get_binnums', {}, function(result){
+				nums = result.result
+				for(var j=0; j<nums.length; j++){					
+					$('#colorbar').append('<div num='+nums[j]+'></div>');
+				}
+
+				$.getJSON('/get_guessbar', {}, function(result2){
+					guessbar = result2.result
+					for(var j in guessbar){
+						$('#colorbar div[num='+j+']').css('background-color', guessbar[j]);
+						
+						$('#colorbar div[num='+j+']').fadeTo(100, 1);
+					}
+				})
+			});
+			//var guessbar = {{guessbar | safe}}
 
 			/* # todo: tool tips on hover
 			$('#colorbar div').hover(function(){
@@ -44,9 +54,9 @@
 		<section id="colorbar">
 		</section>
 
-		<form action="/reveal" method='POST'>
-			<input type="hidden" name="giveup">
-			<input type="submit" value="I give up, tell me!">
+		<form action="/reveal" method='POST' >
+			<input type="hidden" name="giveup" >
+			<input type="submit" value="I give up, tell me!" id="giveup">
 		</form>
 		
 		

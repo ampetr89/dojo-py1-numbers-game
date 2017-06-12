@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request, session, jsonify
 import random
 from math import ceil, floor
 from palettable.cmocean.sequential import Amp_10, Dense_10
@@ -87,11 +87,22 @@ def index():
 		initialize()
 
 
-	params = {'guesses': str(session['guesses']),
-			  'guessbar': str(session['guessbar']),
-			   'binnums': session['binnums'],
-			   'msg': session['msg']}
+	params = {'msg': session['msg']}
 	return render_template('index.html', **params)
+
+
+@app.route('/get_binnums')
+def get_binnums():
+	return jsonify(result=session['binnums'])
+
+
+@app.route('/get_guessbar')
+def get_guessbar():
+	return jsonify(result=session['guessbar'])
+
+@app.route('/get_guesses')
+def get_guesses():
+	return jsonify(result=session['guesses'])
 
 
 

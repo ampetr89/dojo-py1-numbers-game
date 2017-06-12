@@ -1,14 +1,20 @@
+#colorbar{
+	height: 25px;
+}
 #colorbar div{
 	display: inline-block;
 	width: 25px;
 	height: 25px;
-	outline: 1px rgba(200,200,200,.4) solid;
+	outline: 1px rgba(200,200,200,1) solid;
+
+	opacity: 0;
 }
 
 #msg-box{
-	height: 4em;
+	height: 1em;
+	padding: 1.5em 0 ;
 }
 
-#msg{
-
+#giveup{
+	margin: 20px 0;
 }
