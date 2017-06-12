@@ -1,0 +1,14 @@
+#colorbar div{
+	display: inline-block;
+	width: 50px;
+	height: 50px;
+	outline: 1px black solid;
+}
+
+#msg-box{
+	height: 4em;
+}
+
+#msg{
+	
+}

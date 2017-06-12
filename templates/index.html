@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Numbers Game</title>
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		
+		$(document).ready(function(){
+			console.log('nbins', {{nbins}});
+			console.log('guesses', {{guesses | safe}});
+			/*for(var i=0; i<{{nbins}}; i++){
+				$('#colorbar').append('<div num='+i+'></div>');
+			}
+
+			var guessbar = {{guessbar | safe}};
+			for(var j in guessbar){
+				$('#colorbar div[num='+j+']').css('background-color', guessbar[j]);
+			}*/
+
+		})
+
+	</script>
+</head>
+<body>
+	<main>
+		<h1>I'm thinking of a number...</h1>
+		<form action="/check" method='post'>
+			<input type="number" name='guess' min="0" max="100" required>
+			<input type="submit" value="Check">
+		</form>
+
+		<section id="msg-box">
+			<span id="msg">{{msg}}</span>
+		</section>
+		<!--<section id="colorbar">
+		</section>-->
+
+		<form action="/reveal" method='POST'>
+			<input type="hidden" name="giveup">
+			<input type="submit" value="I give up, tell me!">
+		</form>
+		
+		
+		
+	</main>
+</body>
+</html>
